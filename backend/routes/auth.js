@@ -36,6 +36,7 @@ router.post("/createUser", [
             email: req.body.email,
             password: secPass,
         })
+        success = true;
         res.send({success})
     } catch (error) {
         res.status(500).send("Error has occured");
