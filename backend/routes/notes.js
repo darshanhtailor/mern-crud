@@ -3,6 +3,7 @@ const Notes = require("../models/Notes")
 const fetchuser = require("../middlewares/fetchUser");
 const { body, validationResult } = require('express-validator');
 const multer = require('multer');
+const path = require('path');
 const router = express.Router()
 
 // getting all the notes
@@ -12,7 +13,17 @@ router.get("/fetchallnotes", fetchuser, async (req, res) => {
 })
 
 // add a new notes
-const upload = multer({ dest: "public/files" });
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "public/images");
+    },
+    filename: (req, file, cb) => {
+      const ext = file.mimetype.split("/")[1];
+      cb(null, `${file.fieldname}-${Date.now()}.${ext}`);
+    },
+});
+const upload = multer({ storage: multerStorage });
+
 router.post("/addnote", fetchuser, [
     upload.single('myimage')
 ], async (req, res) => {
@@ -24,12 +35,14 @@ router.post("/addnote", fetchuser, [
             return res.status(400).json({ errors: errors.array() });
         }
         const { title, description, tag } = req.body;
-        console.log(req.file);
+        const file = req.file;
+        console.log(file);
         newnote = await Notes.create({
             user: req.user.id,
             title,
             description,
-            tag
+            tag,
+            imgpath: file.path
         })
         res.json(newnote)
     } catch (error) {
