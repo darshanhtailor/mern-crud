@@ -42,11 +42,11 @@ router.post("/addnote", fetchuser, [
             title,
             description,
             tag,
-            imgpath: file.path
+            imgpath: file ? file.path:null
         })
         res.json(newnote)
     } catch (error) {
-        res.status(500).send("Error has occured" + error);
+        res.status(500).send(error.message);
     }
 })
 
